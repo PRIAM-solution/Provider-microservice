@@ -33,7 +33,7 @@ public class ProviderViewServiceImpl implements ProviderViewService {
 
 
     @Override
-    public List<Map<String,String>> getValeursPersonalData(int dsID, String dataTypeName, List<String> attributes) throws SQLException{
+    public List<Map<String,String>> getValeursPersonalData(String idRef, String dataTypeName, List<String> attributes) throws SQLException{
         String listAttributes ="";
         for (String s: attributes) {
             if (listAttributes.equals("")) listAttributes = listAttributes + s;
@@ -41,9 +41,9 @@ public class ProviderViewServiceImpl implements ProviderViewService {
         }
         String value = null;
         List<Map< String,String>> values = new ArrayList<>();
-        String query = "SELECT DISTINCT " + listAttributes + " FROM provider_view WHERE pu_ID = :dsID";
+        String query = "SELECT DISTINCT " + listAttributes + " FROM provider_view WHERE pu_ID = :idRef";
         Query sqlQuery = entityManager.createNativeQuery(query);
-        sqlQuery.setParameter("dsID", dsID);
+        sqlQuery.setParameter("idRef", idRef);
 
         List<Object[]> results = sqlQuery.getResultList();
 

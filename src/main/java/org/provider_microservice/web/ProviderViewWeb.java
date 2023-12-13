@@ -18,9 +18,9 @@ public class ProviderViewWeb {
     }
 
     @GetMapping(path = "/dataAccessRight")
-    public List<Map<String, String>> getPersonalDataValues(@RequestParam int dsId, @RequestParam String dataTypeName,
+    public List<Map<String, String>> getPersonalDataValues(@RequestParam String idRef, @RequestParam String dataTypeName,
                                                         @RequestParam List<String> attributes) throws SQLException {
-        return providerViewService.getValeursPersonalData(dsId, dataTypeName, attributes);
+        return providerViewService.getValeursPersonalData(idRef, dataTypeName, attributes);
     }
 
     @PostMapping(path = "/rectification")
