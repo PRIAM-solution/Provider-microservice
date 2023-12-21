@@ -10,10 +10,7 @@ import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 import javax.transaction.Transactional;
 import java.sql.*;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Generated(
         value = "org.mapstruct.ap.MappingProcessor",
@@ -41,19 +38,28 @@ public class ProviderViewServiceImpl implements ProviderViewService {
         }
         String value = null;
         List<Map< String,String>> values = new ArrayList<>();
+
         String query = "SELECT DISTINCT " + listAttributes + " FROM provider_view WHERE pu_ID = :idRef";
         Query sqlQuery = entityManager.createNativeQuery(query);
         sqlQuery.setParameter("idRef", idRef);
 
-        List<Object[]> results = sqlQuery.getResultList();
-
-        for (Object[] result : results) {
-
-            Map<String, String> attributsValeurs = new HashMap<>();
-            for (int i = 0; i < result.length; i++) {
-                if (result[i] == null) value = "no data available" ;
-                else value = result[i].toString();
-                addData(values, createDataMap(attributes.get(i),value));
+        // Because when size == 1, the result is not a object list but a String list
+        if(attributes.size() == 1) {
+            List<String> results = sqlQuery.getResultList();
+            for (int i = 0; i < results.size(); i++) {
+                if (results.get(i) == null) value = "no data available";
+                else value = results.get(i);
+                addData(values, createDataMap(attributes.get(0), value));
+            }
+        }
+        else {
+            List<Object[]> results = sqlQuery.getResultList();
+            for (Object[] result : results) {
+                for (int i = 0; i < result.length; i++) {
+                    if (result[i] == null) value = "no data available";
+                    else value = result[i].toString();
+                    addData(values, createDataMap(attributes.get(i), value));
+                }
             }
         }
 
