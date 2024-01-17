@@ -30,7 +30,7 @@ public class ProviderViewServiceImpl implements ProviderViewService {
 
 
     @Override
-    public List<Map<String,String>> getValeursPersonalData(String idRef, String dataTypeName, List<String> attributes) throws SQLException{
+    public List<Map<String,String>> getPersonalDataValues(String idRef, String dataTypeName, List<String> attributes, HashMap<String, String> primaryKeys) throws SQLException{
         String listAttributes ="";
         for (String s: attributes) {
             if (listAttributes.equals("")) listAttributes = listAttributes + s;
@@ -97,6 +97,18 @@ public class ProviderViewServiceImpl implements ProviderViewService {
         return values;
 }*/
 
+    @Override
+    public Map<String, String> getDataValue(String referenceId, String attributeName, Map<String, String> primaryKeys) {
+        HashMap<String, String> response = new HashMap<>();
+        String query = "SELECT DISTINCT " + attributeName + " FROM provider_view WHERE pu_ID = :referenceId";
+        Query sqlQuery = entityManager.createNativeQuery(query);
+        sqlQuery.setParameter("referenceId", referenceId);
+
+        List<String> result = sqlQuery.getResultList();
+        response.put("value", result.get(0));
+        return response;
+    }
+
     private static Map<String, String> createDataMap(String column, String value) {
         Map<String, String> data = new HashMap<>();
         data.put("attribute", column);
@@ -110,7 +122,7 @@ public class ProviderViewServiceImpl implements ProviderViewService {
     }
 
     @Override
-    public void Rectification(String attribute, String newValue, int idDS, String dataTypeName, String primaryKeyName, String primaryKeyValue) throws SQLException {
+    public void Rectification(String attribute, String newValue, String userId, String dataTypeName, String primaryKeyName, String primaryKeyValue) throws SQLException {
 System.out.println(primaryKeyName);
         System.out.println(primaryKeyValue);
         String query = "UPDATE provider_view set " + attribute + " = :newValue where pu_ID = :idDS and "+  primaryKeyName + " = :primaryKeyValue";
@@ -118,7 +130,7 @@ System.out.println(primaryKeyName);
         Query sqlQuery = entityManager.createNativeQuery(query);
         //sqlQuery.setParameter("attribute", attribute);
         sqlQuery.setParameter("newValue", newValue);
-        sqlQuery.setParameter("idDS", idDS);
+        sqlQuery.setParameter("idDS", userId);
         sqlQuery.setParameter("primaryKeyValue", primaryKeyValue);
         //sqlQuery.setParameter("primaryKeyName", primaryKeyName);
         sqlQuery.executeUpdate();
@@ -129,12 +141,12 @@ System.out.println(primaryKeyName);
     }
 
     @Override
-    public void Erasure(String attribute, int idDS, String dataTypeName, String primaryKeyName, String primaryKeyValue) throws SQLException {
+    public void Erasure(String attribute, String userId, String dataTypeName, String primaryKeyName, String primaryKeyValue) throws SQLException {
         System.out.println(primaryKeyName);
         System.out.println(primaryKeyValue);
         String query = "UPDATE provider_view set " + attribute + " = null where pu_ID = :idDS and "+  primaryKeyName + " = :primaryKeyValue";
         Query sqlQuery = entityManager.createNativeQuery(query);
-        sqlQuery.setParameter("idDS", idDS);
+        sqlQuery.setParameter("idDS", userId);
         sqlQuery.setParameter("primaryKeyValue", primaryKeyValue);
         sqlQuery.executeUpdate();
         /* Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/teadb", "root", "");
