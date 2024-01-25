@@ -11,7 +11,7 @@ import java.util.Map;
 @AllArgsConstructor
 @NoArgsConstructor
 public class GetDataValueDTO {
-    private String referenceId;
-    private String attributeName;
+    private String idRef;
+    private String dataName;
     private Map<String, String> primaryKeys = new HashMap<>();
 }

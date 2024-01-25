@@ -5,7 +5,6 @@ import org.provider_microservice.services.ProviderViewService;
 import org.springframework.web.bind.annotation.*;
 
 import java.sql.SQLException;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -26,7 +25,7 @@ public class ProviderViewWeb {
     }
     @PostMapping(path = "/dataValue")
     public Map<String, String> getPersonalDataValue(@RequestBody GetDataValueDTO getDataValueDTO) throws SQLException {
-        return providerViewService.getDataValue(getDataValueDTO.getReferenceId(), getDataValueDTO.getAttributeName(), getDataValueDTO.getPrimaryKeys());
+        return providerViewService.getDataValue(getDataValueDTO.getIdRef(), getDataValueDTO.getDataName(), getDataValueDTO.getPrimaryKeys());
     }
 
     @PostMapping(path = "/rectification")
