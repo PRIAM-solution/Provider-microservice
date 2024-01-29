@@ -10,7 +10,7 @@ public interface ProviderViewService {
     public void Erasure(String attribute, String userId, String dataTypeName, String primaryKeyName, String primaryKeyValue) throws SQLException;
 
     List<Map<String,String>> getPersonalDataValues(String idRef, String dataTypeName, List<String> attributes, HashMap<String, String> primaryKeys) throws SQLException;
-    Map<String, String> getDataValue(String referenceId, String attributeName, Map<String, String> primaryKeys);
+    Map<String, String> getDataValue(String idRef, String dataName, Map<String, String> primaryKeys);
 
 
 }

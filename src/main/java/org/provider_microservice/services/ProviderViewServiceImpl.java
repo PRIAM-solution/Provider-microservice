@@ -98,11 +98,13 @@ public class ProviderViewServiceImpl implements ProviderViewService {
 }*/
 
     @Override
-    public Map<String, String> getDataValue(String referenceId, String attributeName, Map<String, String> primaryKeys) {
+    public Map<String, String> getDataValue(String idRef, String dataName, Map<String, String> primaryKeys) {
         HashMap<String, String> response = new HashMap<>();
-        String query = "SELECT DISTINCT " + attributeName + " FROM provider_view WHERE pu_ID = :referenceId";
+        System.out.println("idRef : " + idRef);
+        System.out.println("dataName : " + dataName);
+        String query = "SELECT DISTINCT " + dataName + " FROM provider_view WHERE pu_ID = :idRef";
         Query sqlQuery = entityManager.createNativeQuery(query);
-        sqlQuery.setParameter("referenceId", referenceId);
+        sqlQuery.setParameter("idRef", idRef);
 
         List<String> result = sqlQuery.getResultList();
         response.put("value", result.get(0));
