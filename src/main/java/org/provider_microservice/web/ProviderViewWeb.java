@@ -24,7 +24,7 @@ public class ProviderViewWeb {
     @GetMapping(path = "/dataAccessRight")
     public List<Map<String, String>> getPersonalDataValues(@RequestParam String idRef, @RequestParam String dataTypeName,
                                                         @RequestParam List<String> attributes) throws SQLException {
-        return providerViewService.getPersonalDataValues(idRef, dataTypeName, attributes, null);
+        return providerViewService.getPersonalDataValues(idRef, dataTypeName, attributes, null); // TODO: Pouvoir récupérer un map dans les paramètres de la requête
     }
     @PostMapping(path = "/dataValue")
     public Map<String, String> getPersonalDataValue(@RequestBody GetDataValueDTO getDataValueDTO) throws SQLException {
