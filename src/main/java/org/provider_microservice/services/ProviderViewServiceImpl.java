@@ -9,7 +9,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 import javax.transaction.Transactional;
-import java.sql.*;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -26,6 +26,7 @@ public class ProviderViewServiceImpl implements ProviderViewService {
     final ProviderViewMapper providerViewMapper;
     @PersistenceContext
     private EntityManager entityManager;
+
     public ProviderViewServiceImpl(ProviderViewRepository providerViewRepository, ProviderViewMapper providerViewMapper) {
         this.providerViewRepository = providerViewRepository;
         this.providerViewMapper = providerViewMapper;
@@ -33,32 +34,38 @@ public class ProviderViewServiceImpl implements ProviderViewService {
 
 
     @Override
-    public List<Map<String,String>> getValeursPersonalData(int dsID, String dataTypeName, List<String> attributes) throws SQLException{
-        String listAttributes ="";
-        for (String s: attributes) {
+    public List<Map<String, String>> getPersonalDataValues(String idRef, String dataTypeName, List<String> attributes, HashMap<String, String> primaryKeys) throws SQLException {
+        String listAttributes = "";
+        for (String s : attributes) {
             if (listAttributes.equals("")) listAttributes = listAttributes + s;
             else listAttributes = listAttributes + "," + s;
         }
         String value = null;
-        List<Map< String,String>> values = new ArrayList<>();
-        String query = "SELECT DISTINCT " + listAttributes + " FROM provider_view WHERE pu_ID = :dsID";
+        List<Map<String, String>> values = new ArrayList<>();
+
+        String query = "SELECT DISTINCT " + listAttributes + " FROM provider_view WHERE pu_ID = :idRef";
         Query sqlQuery = entityManager.createNativeQuery(query);
-        sqlQuery.setParameter("dsID", dsID);
+        sqlQuery.setParameter("idRef", idRef);
 
-        List<Object[]> results = sqlQuery.getResultList();
-
-        for (Object[] result : results) {
-
-            Map<String, String> attributsValeurs = new HashMap<>();
-            for (int i = 0; i < result.length; i++) {
-                if (result[i] == null) value = "no data available" ;
-                else value = result[i].toString();
-                addData(values, createDataMap(attributes.get(i),value));
+        // Because when size == 1, the result is not a object list but a String list
+        if (attributes.size() == 1) {
+            List<String> results = sqlQuery.getResultList();
+            for (int i = 0; i < results.size(); i++) {
+                if (results.get(i) == null) value = "no data available";
+                else value = results.get(i);
+                addData(values, createDataMap(attributes.get(0), value));
+            }
+        } else {
+            List<Object[]> results = sqlQuery.getResultList();
+            for (Object[] result : results) {
+                for (int i = 0; i < result.length; i++) {
+                    if (result[i] == null) value = "no data available";
+                    else value = result[i].toString();
+                    addData(values, createDataMap(attributes.get(i), value));
+                }
             }
         }
-
         return values;
-
     }
    /* @Override
     public List<Map<String,String>> getValeursPersonalData(int idDs, String dataTypeName, List<String> attributes) throws SQLException{
@@ -91,11 +98,23 @@ public class ProviderViewServiceImpl implements ProviderViewService {
         return values;
 }*/
 
+    @Override
+    public Map<String, String> getDataValue(String idRef, String dataName, Map<String, String> primaryKeys) {
+        HashMap<String, String> response = new HashMap<>();
+        String query = "SELECT DISTINCT " + dataName + " FROM provider_view WHERE pu_ID = :idRef";
+        Query sqlQuery = entityManager.createNativeQuery(query);
+        sqlQuery.setParameter("idRef", idRef);
+
+        List<String> result = sqlQuery.getResultList();
+        response.put("value", result.get(0));
+        return response;
+    }
+
     private static Map<String, String> createDataMap(String column, String value) {
         Map<String, String> data = new HashMap<>();
         data.put("attribute", column);
         data.put("value", value);
-        System.out.println (data);
+        System.out.println(data);
         return data;
     }
 
@@ -104,16 +123,17 @@ public class ProviderViewServiceImpl implements ProviderViewService {
     }
 
     @Override
-    public void Rectification(String attribute, String newValue, int idDS, String dataTypeName, String primaryKeyName, String primaryKeyValue) throws SQLException {
-System.out.println(primaryKeyName);
-        System.out.println(primaryKeyValue);
-        String query = "UPDATE provider_view set " + attribute + " = :newValue where pu_ID = :idDS and "+  primaryKeyName + " = :primaryKeyValue";
+    public void Rectification(String dataName, String newValue, String userId, String dataTypeName, Map<String, String> primaryKeys) throws SQLException {
+        String primaryKeyString = "";
+        for (Map.Entry<String, String> entry : primaryKeys.entrySet()) {
+            primaryKeyString += " and " + entry.getKey() + " = " + entry.getValue();
+        }
+        String query = "UPDATE provider_view set " + dataName + " = :newValue where pu_ID = :idDS" + primaryKeyString;
 
         Query sqlQuery = entityManager.createNativeQuery(query);
         //sqlQuery.setParameter("attribute", attribute);
         sqlQuery.setParameter("newValue", newValue);
-        sqlQuery.setParameter("idDS", idDS);
-        sqlQuery.setParameter("primaryKeyValue", primaryKeyValue);
+        sqlQuery.setParameter("idDS", userId);
         //sqlQuery.setParameter("primaryKeyName", primaryKeyName);
         sqlQuery.executeUpdate();
         /* Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/teadb", "root", "");
@@ -123,13 +143,15 @@ System.out.println(primaryKeyName);
     }
 
     @Override
-    public void Erasure(String attribute, int idDS, String dataTypeName, String primaryKeyName, String primaryKeyValue) throws SQLException {
-        System.out.println(primaryKeyName);
-        System.out.println(primaryKeyValue);
-        String query = "UPDATE provider_view set " + attribute + " = null where pu_ID = :idDS and "+  primaryKeyName + " = :primaryKeyValue";
+    public void Erasure(String dataName, String userId, String dataTypeName, Map<String, String> primaryKeys) throws SQLException {
+        String primaryKeyString = "";
+        for (Map.Entry<String, String> entry : primaryKeys.entrySet()) {
+            primaryKeyString += " and " + entry.getKey() + " = " + entry.getValue();
+        }
+
+        String query = "UPDATE provider_view set " + dataName + " = null where pu_ID = :idDS" + primaryKeyString;
         Query sqlQuery = entityManager.createNativeQuery(query);
-        sqlQuery.setParameter("idDS", idDS);
-        sqlQuery.setParameter("primaryKeyValue", primaryKeyValue);
+        sqlQuery.setParameter("idDS", userId);
         sqlQuery.executeUpdate();
         /* Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/teadb", "root", "");
         ;
