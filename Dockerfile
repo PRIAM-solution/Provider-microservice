@@ -7,7 +7,7 @@ ARG GRADLE_VERSION="8.7"
 ARG JRE_VERSION="17"
 
 # Image qui va créer le .jar
-FROM gradle:${GRADLE_VERSION} as builder
+FROM gradle:${GRADLE_VERSION} AS builder
 
 WORKDIR /app
 
