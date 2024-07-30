@@ -1,19 +1,20 @@
 package org.provider_microservice.services;
 
-import org.provider_microservice.mappers.ProviderViewMapper;
-import org.provider_microservice.repositories.ProviderViewRepository;
-import org.springframework.stereotype.Service;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import javax.annotation.Generated;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 import javax.transaction.Transactional;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+
+import org.provider_microservice.mappers.ProviderViewMapper;
+import org.provider_microservice.repositories.ProviderViewRepository;
+import org.springframework.stereotype.Service;
 
 @Generated(
         value = "org.mapstruct.ap.MappingProcessor",
@@ -78,7 +79,7 @@ public class ProviderViewServiceImpl implements ProviderViewService {
             else listAttributes = listAttributes + "," + s;
         }
         System.out.println(listAttributes);
-        Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/teadb", "root", "");
+        Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3307/teadb", "root", "");
         PreparedStatement ps = con.prepareStatement("select distinct "+  listAttributes +  " from provider_view where pu_ID = " + idDs);
 
         try (ResultSet rs = ps.executeQuery()) {
@@ -136,7 +137,7 @@ public class ProviderViewServiceImpl implements ProviderViewService {
         sqlQuery.setParameter("idDS", userId);
         //sqlQuery.setParameter("primaryKeyName", primaryKeyName);
         sqlQuery.executeUpdate();
-        /* Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/teadb", "root", "");
+        /* Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3307/teadb", "root", "");
         ;
         PreparedStatement ps = con.prepareStatement("UPDATE provider_view set " + attribute + " ='" + newValue + "'where pu_ID =" + patientId+ " and " + primaryKeyName + " = " + primaryKeyValue);
         int i = ps.executeUpdate();*/
@@ -153,7 +154,7 @@ public class ProviderViewServiceImpl implements ProviderViewService {
         Query sqlQuery = entityManager.createNativeQuery(query);
         sqlQuery.setParameter("idDS", userId);
         sqlQuery.executeUpdate();
-        /* Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/teadb", "root", "");
+        /* Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3307/teadb", "root", "");
         ;
         PreparedStatement ps = con.prepareStatement("UPDATE provider_view set " + attribute + " ='" + newValue + "'where pu_ID =" + patientId+ " and " + primaryKeyName + " = " + primaryKeyValue);
         int i = ps.executeUpdate();*/
